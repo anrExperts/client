@@ -10,6 +10,13 @@ const config = {
 	kit: {
 		adapter: adapter()
 	}
+	vite: {
+		resolve: {
+			alias: {
+				$components: path.resolve('./src/components'),
+			}
+		}
+	}
 };
 
 export default config;
