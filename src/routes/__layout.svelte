@@ -26,9 +26,9 @@
     Row,
     Column,
   } from "carbon-components-svelte";
-  import SettingsAdjust20 from "carbon-icons-svelte/lib/SettingsAdjust20"; import
-UserAvatarFilledAlt20 from "carbon-icons-svelte/lib/UserAvatarFilledAlt20"; let isSideNavOpen =
-false; 
+  import SettingsAdjust20 from "carbon-icons-svelte/lib/SettingsAdjust20"; 
+  import UserAvatarFilledAlt20 from "carbon-icons-svelte/lib/UserAvatarFilledAlt20"; 
+  let isSideNavOpen = false; 
 let isOpen1 = false; 
 let isOpen2 = false;
   import { Link } from "carbon-components-svelte";
@@ -90,9 +90,7 @@ let isOpen2 = false;
 
 	<Grid>
 		<Row>
-			<Column>
 				<slot />
-			</Column>
 		</Row>
 	</Grid>
 </Content>
