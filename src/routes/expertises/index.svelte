@@ -1,25 +1,39 @@
-<script context="module">
-	/** @type {import('@sveltejs/kit').Load} */ 
-  export async function load({
-		fetch
-	}) {
-		const url = `http://localhost:8984/xpr/expertises/json`;
-		const response = await fetch(url);
-
-		return {
-			status: response.status,
-			props: {
-				affaires: response.ok && (await response.json())
-			}
-		};
-	}
-</script>
-
 <script>
-  export let affaires;
+
+	import { onMount } from 'svelte'
+	import { DataTable } from 'carbon-components-svelte'
+
+   	let affaires = [];
+
+	onMount(() => {
+		fetchExpertises()
+	})
+
+	const fetchExpertises = async () => {
+		const url = `https://experts.huma-num.fr/xpr/expertises/json`;
+			const response = await fetch(url);
+
+			if (response.ok) {
+				affaires = await response.json()
+				affaires.forEach(o => {
+					if (!o.date || !o.expert || !o.id) {
+						console.log('probleme avec', o)
+					}
+				})
+
+				for (let i=0; i<affaires.length; i++) {
+					affaires[i].id = i
+				}
+			}
+			else 
+				console.log("fetchExpertises n’a pas pu récupérer les données")
+	}
+
+	$: console.log(affaires)
+
 </script>
 
-<h1>Expertises</h1>
+<!--<h1>Expertises</h1>
 <div>
 	{#each affaires as affaire}
 		<div>
@@ -30,4 +44,12 @@
       </a>
 		</div>
 	{/each}
-</div>
+</div>-->
+<DataTable
+  	headers={[
+		{ key: "id", value: "ID" },
+		{ key: "expert", value: "Expert" },
+		{ key: "date", value: "Date" }
+	]}
+  	rows={affaires}
+/>
