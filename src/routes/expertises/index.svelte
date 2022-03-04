@@ -1,8 +1,8 @@
 <script>
-
 	import { onMount } from 'svelte'
 	import { 
 		DataTable,
+		Pagination,
 		SideNav,
 		SideNavDivider,
 		SideNavItems,
@@ -11,22 +11,48 @@
 		MultiSelect,
 		Grid,
 		Column, 
-		Row
+		Row,
+		Link
 	} from 'carbon-components-svelte'
 
-   	let affaires = [];
+	import { Launch16 } from 'carbon-icons-svelte';
+
+  let affaires = []
 	let filtered = []
+	let currentPage = 0
+	let pageSize = 20
+	let meta = {
+		totalExpertises: 0,
+		start: 1,
+		count: 20
+	}
+
+	let selectedYears = []
+	
+	let multiItems = []
+	multiItems = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`}))
 
 	onMount(() => {
 		fetchExpertises()
 	})
 
+	
 	const fetchExpertises = async () => {
 		const url = `https://experts.huma-num.fr/xpr/expertises/json`;
-			const response = await fetch(url);
+			const response = await fetch(url, {
+				method: 'GET',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({ 
+					start: meta.start, 
+					count: meta.count, 
+					filterDate: selectedYears 
+				})
+			});
 
 			if (response.ok) {
-				affaires = await response.json()
+				const data = await response.json()
+				affaires = data.content
+				meta = data.meta
 			}
 			else 
 				console.log("fetchExpertises n’a pas pu récupérer les données")
@@ -34,44 +60,22 @@
 
 	const getYearsFromData = (affaires) => {
 		let years = affaires.reduce((acc, current) => acc.concat(current.dates.map(date => date.split('-')[0])), [])
-		console.log(years)
 		return [...new Set(years)]
 	}
 
-	$: console.log('getYearsFromData', getYearsFromData(affaires))
-
-	let multiItems = []
-	let selectedYears = []
-	
-	$: multiItems = getYearsFromData(affaires).map(y => {
-		let counts = {}
-
-		getYearsFromData(affaires).forEach(y => {
-			let filtered = affaires.filter(a => y === a.dates.split('-')[0])
-			counts[y] = filtered.length
-		})
-
-		return { "id": y, "text": `${y} (${counts[y]})` }
-	})
-
-
-	//
-	//
 
 	$: {
 		if (selectedYears.length === 0) 
 			filtered = affaires
 		else 
-			filtered = affaires.filter(a => selectedYears.includes(a.date.split('-')[0]))
+			filtered = affaires.filter(a => a.dates.some(d => selectedYears.includes(d.split('-')[0])))
 	}
 	
-
 </script>
 
 
 <Grid>
 	<Row>
-		
 		<Column>
 			<SideNav
 				isOpen={true}
@@ -87,7 +91,6 @@
 					label="Selectionnez des années"
 					items={ multiItems }
 				/>
-		
 				
 			</SideNavItems>
 
@@ -100,8 +103,34 @@
 					{ key: "experts", value: "Experts" },
 					{ key: "dates", value: "Dates" }
 				]}
-				rows={ filtered }
+				rows={ filtered.slice(0, pageSize) }
+			>
+
+			<svelte:fragment slot="cell" let:cell>
+				{#if cell.key === 'dates'}
+					{#if cell.value.length > 1}
+						{`${cell.value[0]} - ${cell.value[cell.value.length-1]}`}
+					{:else}
+						{cell.value}
+					{/if}
+				{:else if cell.key === 'experts'}
+					{cell.value.join(' ; ')}
+				{:else}
+					<Link href="" icon={Launch16}>{cell.value}</Link>
+				{/if}
+			</svelte:fragment>
+
+			<Pagination
+				backwardText="Page précédente"
+				forwardText="Page suivante"
+				itemsPerPageText="Fiches par page :"
+				bind:page={meta.start}
+				bind:pageSize={meta.count}
+				pageSizes={[20, 50, 100, 250, 500]}
+				totalItems={meta.totalExpertises}
 			/>
+		
+			</DataTable>
 		</Column>
 	</Row>
 </Grid>
