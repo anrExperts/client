@@ -19,57 +19,43 @@
 
   let affaires = []
 	let filtered = []
-	let currentPage = 0
-	let pageSize = 20
 	let meta = {
 		totalExpertises: 0,
 		start: 1,
-		count: 20
+		count: 20,
+		datesCount: [],
+		filterDate: []
 	}
 
 	let selectedYears = []
-	
-	let multiItems = []
-	multiItems = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`}))
+
+	const multiItems = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`}))
 
 	onMount(() => {
-		fetchExpertises()
+		fetchExpertises(meta)
 	})
 
-	
-	const fetchExpertises = async () => {
+	const fetchExpertises = async (meta) => {
 		const url = `https://experts.huma-num.fr/xpr/expertises/json`;
-			const response = await fetch(url, {
-				method: 'GET',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({ 
-					start: meta.start, 
-					count: meta.count, 
-					filterDate: selectedYears 
-				})
-			});
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({ 
+				start: meta.start, 
+				count: meta.count, 
+				filterDate: selectedYears
+			})
+		});
 
-			if (response.ok) {
-				const data = await response.json()
-				affaires = data.content
-				meta = data.meta
-			}
-			else 
-				console.log("fetchExpertises n’a pas pu récupérer les données")
-	}
-
-	const getYearsFromData = (affaires) => {
-		let years = affaires.reduce((acc, current) => acc.concat(current.dates.map(date => date.split('-')[0])), [])
-		return [...new Set(years)]
-	}
-
-
-	$: {
-		if (selectedYears.length === 0) 
-			filtered = affaires
+		if (response.ok) {
+			const data = await response.json()
+			affaires = data.content
+			meta = data.meta
+		}
 		else 
-			filtered = affaires.filter(a => a.dates.some(d => selectedYears.includes(d.split('-')[0])))
-	}
+			console.log("fetchExpertises n’a pas pu récupérer les données")
+}
+
 	
 </script>
 
@@ -103,7 +89,7 @@
 					{ key: "experts", value: "Experts" },
 					{ key: "dates", value: "Dates" }
 				]}
-				rows={ filtered.slice(0, pageSize) }
+				rows={ affaires }
 			>
 
 			<svelte:fragment slot="cell" let:cell>
