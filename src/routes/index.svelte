@@ -2,7 +2,5 @@
   import {Button} from "carbon-components-svelte";
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-
-<Button>Primary button</Button>
+<h1>Pratiques des savoirs entre jugement et innovation. <br />Experts, expertises du bâtiment, Paris 1690-1790 – ANR EXPERTS</h1>
+<p/>

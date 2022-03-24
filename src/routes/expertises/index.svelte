@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte' ;
-	import { 
+	import {
 		DataTable,
 		Pagination,
 		SideNav,
@@ -12,49 +12,64 @@
 		Grid,
 		Column, 
 		Row,
-		Link
+		Link,
+    ToolbarSearch,
+    ToolbarContent,
+		Toolbar
 	} from 'carbon-components-svelte' ;
 
 	import { Launch16 } from 'carbon-icons-svelte' ;
 
   	let affaires = [] ;
 	let filtered = [] ;
-	let meta = {
+	$: meta = {
 		totalExpertises: 0,
 		start: 1,
 		count: 20,
 		datesCount: {},
+		experts:{},
 		filterDate: []
 	} ;
 
-	console.log(meta) ;
-
+  let query = [] ;
 	let selectedYears = [] ;
+	let selectedExperts = [] ;
 
-	const multiItems = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`})) ;
-	//let multiItems = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`})) ;
+
+	$: datesCount = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`})) ;
+	$: experts = Object.keys(meta.experts).map(y => ({ "id": y, "text": meta.experts[y]})) ;
+
 
 	onMount(() => {
 		fetchExpertises(meta)
 	}) ;
 
-	const fetchExpertises = async (meta) => {
-		const url = 'https://experts.huma-num.fr/xpr/expertises/json';
+	const fetchExpertises = async () => {
+		const url = 'http://localhost:8984/xpr/expertises/json' ;
+		//const url = 'https://experts.huma-num.fr/xpr/expertises/json';
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {'Content-Type': 'text/plain'},
 			body: JSON.stringify(meta)
 		});
 		if (response.ok) {
-			const data = await response.json()
-			affaires = data.content
-			meta = data.meta
-			//multiItems = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`}))
+			const data = await response.json() ;
+			affaires = data.content ;
+			meta = data.meta ;
 		}
 		else 
 			console.log("fetchExpertises n’a pas pu récupérer les données")
 } ;
-	
+
+	$: filteredAffaires = affaires
+    .filter((row) => {
+		  if(query.length === 0) {
+        return row;
+      } else {
+        return (row.experts.toString().includes(query) || row.dates.toString().includes(query));
+      }
+    });
+
 </script>
 
 
@@ -64,16 +79,22 @@
 			<SideNav
 				isOpen={true}
 			>
-			<SideNavItems>
-				<h5>Filtres et facettes</h5>
-				<SideNavDivider/>
-				<MultiSelect 
-					bind:selectedIds={selectedYears}
-					titleText="Années des affaires"
-					label="Selectionnez des années"
-					items={ multiItems }
-				/>			
-			</SideNavItems>
+				<SideNavItems>
+					<h5>Filtres et facettes</h5>
+					<SideNavDivider/>
+					<!--@titleText="Années des affaires" = titre-->
+					<MultiSelect
+						bind:selectedIds={selectedYears}
+						label="Années"
+						items={ datesCount }
+					/>
+					<MultiSelect
+						bind:selectedIds={selectedExperts}
+						label="Experts"
+						items={ experts }
+					/>
+				</SideNavItems>
+
 			</SideNav>
 		</Column>
 		<Column>
@@ -83,32 +104,37 @@
 					{ key: "experts", value: "Experts" },
 					{ key: "dates", value: "Dates" }
 				]}
-				rows={ affaires }
+				rows={ filteredAffaires }
 			>
+				<Toolbar>
+					<ToolbarContent>
+						<ToolbarSearch bind:value={query}/>
+					</ToolbarContent>
+				</Toolbar>
 
-			<svelte:fragment slot="cell" let:cell>
-				{#if cell.key === 'dates'}
-					{#if cell.value.length > 1}
-						{`${cell.value[0]} - ${cell.value[cell.value.length-1]}`}
+				<svelte:fragment slot="cell" let:cell>
+					{#if cell.key === 'dates'}
+						{#if cell.value.length > 1}
+							{`${cell.value[0]} - ${cell.value[cell.value.length-1]}`}
+						{:else}
+							{cell.value}
+						{/if}
+					{:else if cell.key === 'experts'}
+						{cell.value.join(' ; ')}
 					{:else}
-						{cell.value}
+						<Link href={'expertises/' + cell.value} icon={Launch16}>{cell.value}</Link>
 					{/if}
-				{:else if cell.key === 'experts'}
-					{cell.value.join(' ; ')}
-				{:else}
-					<Link href="" icon={Launch16}>{cell.value}</Link>
-				{/if}
-			</svelte:fragment>
+				</svelte:fragment>
 
-			<Pagination
-				backwardText="Page précédente"
-				forwardText="Page suivante"
-				itemsPerPageText="Fiches par page :"
-				bind:page={meta.start}
-				bind:pageSize={meta.count}
-				pageSizes={[20, 50, 100, 250, 500]}
-				totalItems={meta.totalExpertises}
-			/>
+				<Pagination
+						backwardText="Page précédente"
+						forwardText="Page suivante"
+						itemsPerPageText="Fiches par page :"
+						bind:page={meta.start}
+						bind:pageSize={meta.count}
+						pageSizes={[20, 50, 100, 250, 500]}
+						totalItems={meta.totalExpertises}
+				/>
 			</DataTable>
 		</Column>
 	</Row>

@@ -27,12 +27,12 @@
     Column,
   } from "carbon-components-svelte";
   import SettingsAdjust20 from "carbon-icons-svelte/lib/SettingsAdjust20"; 
-  import UserAvatarFilledAlt20 from "carbon-icons-svelte/lib/UserAvatarFilledAlt20"; 
-  let isSideNavOpen = false; 
-let isOpen1 = false; 
-let isOpen2 = false;
-  import { Link } from "carbon-components-svelte";
+  import UserAvatarFilledAlt20 from "carbon-icons-svelte/lib/UserAvatarFilledAlt20";
 
+  let isSideNavOpen = false; 
+	let isOpen1 = false;
+	let isOpen2 = false;
+  import { Link } from "carbon-components-svelte";
   import Nav from '$components/Nav.svelte';
 </script>
 
@@ -51,7 +51,12 @@ let isOpen2 = false;
 			icon={UserAvatarFilledAlt20}
 			closeIcon={UserAvatarFilledAlt20}
 		>
-    
+			<Theme bind:theme />
+			<RadioButtonGroup legendText="Carbon theme" orientation="vertical" bind:selected={theme}>
+				{#each ['white', 'g10', 'g80', 'g90', 'g100'] as value}
+					<RadioButton labelText={value} {value}/>
+				{/each}
+			</RadioButtonGroup>
 		</HeaderAction>
 		<HeaderAction bind:isOpen={isOpen2}>
 			<HeaderPanelLinks>
@@ -61,7 +66,7 @@ let isOpen2 = false;
 
 				<HeaderPanelDivider>Données</HeaderPanelDivider>
 				<HeaderPanelLink><Link href="/expertises" target="_blank">expertises</Link></HeaderPanelLink>
-        <HeaderPanelLink><Link href="/experts" target="_blank">experts</Link></HeaderPanelLink>
+        <HeaderPanelLink><Link href="/biographies" target="_blank">prosopographie</Link></HeaderPanelLink>
 			</HeaderPanelLinks>
 		</HeaderAction>
 	</HeaderUtilities>
@@ -81,13 +86,6 @@ let isOpen2 = false;
 </SideNav>
 
 <Content>
-  <Theme bind:theme />
-  <RadioButtonGroup legendText="Carbon theme" bind:selected={theme}>
-	{#each ['white', 'g10', 'g80', 'g90', 'g100'] as value}
-		<RadioButton labelText={value} {value} />
-	{/each}
-  </RadioButtonGroup>
-
 	<Grid>
 		<Row>
 				<slot />
