@@ -22,7 +22,7 @@
 
   	let affaires = [] ;
 	let filtered = [] ;
-	$: meta = {
+	let meta = {
 		totalExpertises: 0,
 		start: 1,
 		count: 20,
@@ -39,12 +39,7 @@
 	$: datesCount = Object.keys(meta.datesCount).map(y => ({ "id": y, "text": `${y} (${meta.datesCount[y]})`})) ;
 	$: experts = Object.keys(meta.experts).map(y => ({ "id": y, "text": meta.experts[y]})) ;
 
-
-	onMount(() => {
-		fetchExpertises(meta)
-	}) ;
-
-	const fetchExpertises = async () => {
+	const fetchExpertises = async (meta) => {
 		const url = 'http://localhost:8984/xpr/expertises/json' ;
 		//const url = 'https://experts.huma-num.fr/xpr/expertises/json';
 		const response = await fetch(url, {
@@ -56,10 +51,13 @@
 			const data = await response.json() ;
 			affaires = data.content ;
 			meta = data.meta ;
+			console.log(data.meta);
 		}
 		else 
 			console.log("fetchExpertises n’a pas pu récupérer les données")
-} ;
+	} ;
+
+	$: fetchExpertises(meta)
 
 	$: filteredAffaires = affaires
     .filter((row) => {
@@ -133,7 +131,7 @@
 						bind:page={meta.start}
 						bind:pageSize={meta.count}
 						pageSizes={[20, 50, 100, 250, 500]}
-						totalItems={meta.totalExpertises}
+						bind:totalItems={meta.totalExpertises}
 				/>
 			</DataTable>
 		</Column>
