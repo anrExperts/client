@@ -8,8 +8,8 @@
 	} from 'carbon-components-svelte' ;
 
 	export async function load({ params, fetch, session, stuff }) {
-		const url = `http://localhost:8984/xpr/expertises/${params.expertise}/json`;
-		//const url = 'https://experts.huma-num.fr/xpr/expertises/${params.expertise}/json';
+		//const url = `http://localhost:8984/xpr/expertises/${params.expertise}/json`;
+		const url = `https://experts.huma-num.fr/xpr/expertises/${params.expertise}/json`;
 		const response = await fetch(url);
 		if(response.ok) {
 			return {

@@ -40,8 +40,8 @@
 	$: experts = Object.keys(meta.experts).map(y => ({ "id": y, "text": meta.experts[y]})) ;
 
 	const fetchExpertises = async (meta) => {
-		const url = 'http://localhost:8984/xpr/expertises/json' ;
-		//const url = 'https://experts.huma-num.fr/xpr/expertises/json';
+		//const url = 'http://localhost:8984/xpr/expertises/json' ;
+		const url = `https://experts.huma-num.fr/xpr/expertises/json`;
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {'Content-Type': 'text/plain'},

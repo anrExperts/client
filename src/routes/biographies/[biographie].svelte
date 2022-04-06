@@ -9,7 +9,8 @@
 
 
     export async function load({ params, fetch, session, stuff }) {
-        const url = `http://localhost:8984/xpr/biographies/${params.biographie}/json`;
+        //const url = `http://localhost:8984/xpr/biographies/${params.biographie}/json`;
+        const url = `https://experts.huma-num.fr/xpr/biographies/${params.biographie}/json`;
         const response = await fetch(url);
         if(response.ok) {
             return {
