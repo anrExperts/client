@@ -36,11 +36,7 @@
     let selectedQualities = [];
     $: console.log(selectedQualities)
 
-    onMount(() => {
-        fetchBiographies(meta)
-    }) ;
-
-    const fetchBiographies = async () => {
+    const fetchBiographies = async (meta) => {
         const url = 'http://localhost:8984/xpr/biographies/json' ;
         //const url = 'https://experts.huma-num.fr/xpr/biographies/json';
         const response = await fetch(url, {
@@ -65,6 +61,8 @@
                 return (row.name.toString().toLowerCase().includes(query.toLowerCase()));
             }
         });
+
+    $: fetchBiographies(meta)
 
     $: console.log(meta)
 

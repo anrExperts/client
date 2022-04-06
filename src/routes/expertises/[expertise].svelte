@@ -28,9 +28,10 @@
   export let data
 	console.log(data);
 
+	const meta = data.meta
 	const affaire = data.content
 
-	let expertiseLabel = getExpertiseLabel(affaire.cote, affaire.dossier, affaire.supplement, affaire.dates) ;
+	let expertiseLabel = getExpertiseLabel(meta.cote, meta.dossier, meta.supplement, affaire.dates) ;
 
 	function getExpertiseLabel(cote, dossier, supplement, dates){
 		let datesLabel = getDatesLabel(dates) ;
@@ -179,6 +180,35 @@
 		return name
 	}
 
+	function getOpinion(opinion) {
+		 if(opinion.experts.length > 0) {
+			 console.log(`experts : ${opinion.experts}`)
+			 var experts = opinion.experts
+			 var entitiesLink = []
+			 for (let expert of experts) {
+				 entitiesLink.push(getEntitiesLink(expert))
+			 }
+			 return `Conclusion de ${entitiesLink.join(' ; ')}  : ${opinion.opinion}`
+		} else {
+			 return `Conclusion : ${opinion.opinion}`
+		}
+	}
+	function getEntitiesLink(entity) {
+		// @todo do not return html return `<Link href="/biographies/${entity.id}">${entity.name}</Link>`
+		return entity.name
+	}
+
+	function getSentences(sentences){
+		let institutions = [] ;
+		for (let institution of sentences) {
+			let dates = [] ;
+			for (let date of institution.dates) {
+				dates.push(getDate(date))
+			}
+			institutions.push(`${institution.orgName} : ${dates.join(', ')}`)
+		} ;
+		return institutions.join(' | ')
+	}
 
 </script>
 
@@ -187,6 +217,7 @@
 	<div>
 		<h2>{expertiseLabel}</h2>
 		<p>{affaire.addresses.join(" | ")}</p>
+		<!--Vacations-->
 		<div>
 			<h3>Liste des vacations</h3>
 			<ul>
@@ -195,6 +226,32 @@
 				{/each}
 			</ul>
 		</div>
+		<!--Procedure-->
+		<div>
+			<h3>Procédure</h3>
+			{#if affaire.designation.length > 0}
+				<p>{ affaire.designation }</p>
+			{/if}
+			{#if affaire.categories.length > 0}
+				<p>{ (affaire.categories.length > 1) ? 'Catégories d’expertise : ':'Catégorie d’expertise : ' + affaire.categories.join(' ; ') + '.' }</p>
+			{/if}
+			{#if affaire.framework.length > 0}
+				<p>{ `Procédure : ${affaire.framework}` }</p>
+			{/if}
+			{#if affaire.origination.length > 0}
+				<p>{ `Origine de l’expertise : ${affaire.origination}` }</p>
+			{/if}
+			{#if affaire.sentences.length > 0}
+				<p>{ `Intervention d’une institution : ${getSentences(affaire.sentences)}` }</p>
+			{/if}
+			{#if affaire.case.length > 0}
+				<p>{ `Cause de l’expertise : ${affaire.case}` }</p>
+			{/if}
+			{#if affaire.objects.length > 0}
+				<p>{ (affaire.objects.length > 1) ? 'Objets de l’expertise : ':'Objet de l’expertise : '}{ `${affaire.objects.join(' ; ')}.` }</p>
+			{/if}
+		</div>
+		<!--Participants-->
 		<div>
 			<h3>Participants</h3>
 			<div>
@@ -253,7 +310,60 @@
 					</UnorderedList>
 				</div>
 			{/if}
-
 		</div>
+		<!--Conclusions-->
+		<div>
+			<h3>Conclusions</h3>
+			<p>{ `Dispositif de l’expertise : ${affaire.agreement}` }</p>
+			{#if affaire.opinions.length > 0}
+				{#each affaire.opinions as opinion}
+					<p>{ getOpinion(opinion) }</p>
+				{/each}
+			{/if}
+			{#if affaire.arrangement.length > 0}
+				<p>{ `Accomodement : ${affaire.arrangement.toLowerCase()}` }</p>
+			{/if}
+			{#if affaire.estimate.length > 0}
+				<p>{ `Montant global (pour les estimations) : ${affaire.estimate}` }</p>
+			{/if}
+			{#if affaire.estimates.length > 0}
+				<ul>
+					{#each affaire.estimates as place}
+						<lh>{ `Estimation pour ${place.placeName}` }</lh>
+						{#each place.appraisals as appraisal}
+							<li>{ `${appraisal.description} : ${appraisal.value}` }</li>
+						{/each}
+					{/each}
+				</ul>
+			{/if}
+			{#if affaire.fees.length > 0}
+				{#each affaire.fees as fee}
+					<p>{ fee }</p>
+				{/each}
+			{/if}
+			{#if affaire.totalFees.length > 0}
+				<p>{ `Coût total de l’expertise : ${affaire.totalFees}`}</p>
+			{/if}
+			{#if affaire.expertsExpense.length > 0}
+				<p>{ `Bourse commune des experts : ${affaire.expertsExpense}` }</p>
+			{/if}
+			{#if affaire.clerksExpense.length > 0}
+				<p>{ `Bourse commune des greffiers : ${affaire.clerksExpense}` }</p>
+			{/if}
+		</div>
+		{#if affaire.analysis.length > 0}
+			<!--Analysis-->
+			<div>
+				<h3>Commentaires et première analyse</h3>
+				<p>{ affaire.analysis }</p>
+			</div>
+		{/if}
+		{#if affaire.noteworthy.length > 0}
+			<!--Analysis-->
+			<div>
+				<h3>Éléments remarquables</h3>
+				<p>{ affaire.noteworthy }</p>
+			</div>
+		{/if}
 	</div>
 </div>
