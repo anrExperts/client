@@ -31,7 +31,7 @@
     export let data
     console.log(data);
 
-    const biographie = data.content
+    $: biographie = data.content
 
     function getDates(dates) {
         if(dates.constructor === Array) { return getDatesFromArray(dates) ; } ;
