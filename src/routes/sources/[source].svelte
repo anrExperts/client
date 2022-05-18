@@ -28,8 +28,8 @@
     export let data
     console.log(data);
 
-    const meta = data.meta
-    const source = data.content
+    $: meta = data.meta
+    $: source = data.content
 
 </script>
 

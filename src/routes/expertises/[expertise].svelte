@@ -28,8 +28,8 @@
   export let data
 	console.log(data);
 
-	const meta = data.meta
-	const affaire = data.content
+	$: meta = data.meta
+	$: affaire = data.content
 
 	let expertiseLabel = getExpertiseLabel(meta.cote, meta.dossier, meta.supplement, affaire.dates) ;
 
