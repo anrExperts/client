@@ -8,8 +8,8 @@
 	} from 'carbon-components-svelte' ;
 
 	export async function load({ params, fetch, session, stuff }) {
-		//const url = `http://localhost:8984/xpr/expertises/${params.expertise}/json`;
-		const url = `https://experts.huma-num.fr/xpr/expertises/${params.expertise}/json`;
+		const url = `http://localhost:8984/xpr/expertises/${params.expertise}/json`;
+		//const url = `https://experts.huma-num.fr/xpr/expertises/${params.expertise}/json`;
 		const response = await fetch(url);
 		if(response.ok) {
 			return {
@@ -28,17 +28,17 @@
   export let data
 	console.log(data);
 
-	$: meta = data.meta
-	$: affaire = data.content
+	const meta = data.meta
+	const affaire = data.content
 
 	let expertiseLabel = getExpertiseLabel(meta.cote, meta.dossier, meta.supplement, affaire.dates) ;
 
 	function getExpertiseLabel(cote, dossier, supplement, dates){
-		let datesLabel = getDatesLabel(dates) ;
+		let datesLabel = (dates !== null) ? '(' + getDatesLabel(dates) + ')' : '' ;
 		if(supplement.length === 0) {
-			return `${cote} dossier n°${dossier} (${datesLabel})`
+			return `${cote} dossier n°${dossier} ${datesLabel}`
 		} else {
-			return `${cote} dossier n°${dossier} ${supplement} (${datesLabel})`
+			return `${cote} dossier n°${dossier} ${supplement} ${datesLabel}`
 		}
 	}
 
@@ -176,12 +176,13 @@
 	function getPerson(person) {
 		var name = person.name ;
 		var occupation = person.occupation ;
-		if(occupation.length !== 0) {return [name, occupation].join(', ')}
-		return name
+		if(name.length !==0 && occupation.length !== 0) {return [name, occupation].join(', ')}
+		else if(name.length !==0 && occupation.length == 0) {return name}
+		return occupation
 	}
 
 	function getOpinion(opinion) {
-		 if(opinion.experts.length > 0) {
+		 if(opinion.experts !== null) {
 			 console.log(`experts : ${opinion.experts}`)
 			 var experts = opinion.experts
 			 var entitiesLink = []
@@ -202,10 +203,12 @@
 		let institutions = [] ;
 		for (let institution of sentences) {
 			let dates = [] ;
-			for (let date of institution.dates) {
-				dates.push(getDate(date))
+			if(institution.dates !== null) {
+				for (let date of institution.dates) {
+					dates.push(getDate(date))
+				}
 			}
-			institutions.push(`${institution.orgName} : ${dates.join(', ')}`)
+			institutions.push((institution.dates !== null) ? institution.orgName + ' : ' + dates.join(', ') : institution.orgName)
 		} ;
 		return institutions.join(' | ')
 	}
@@ -216,23 +219,28 @@
 	<h1>Expertise</h1>
 	<div>
 		<h2>{expertiseLabel}</h2>
-		<p>{affaire.addresses.join(" | ")}</p>
+		{#if affaire.addresses !== null}
+			<p>{affaire.addresses.join(" | ")}</p>
+		{/if}
 		<!--Vacations-->
 		<div>
 			<h3>Liste des vacations</h3>
-			<ul>
-				{#each affaire.sessions as session}
-					<li>{getSessions(session)}</li>
-				{/each}
-			</ul>
+			{#if affaire.sessions !== null}
+				<ul>
+					{#each affaire.sessions as session}
+						<li>{getSessions(session)}</li>
+					{/each}
+				</ul>
+			{/if}
 		</div>
+
 		<!--Procedure-->
 		<div>
 			<h3>Procédure</h3>
 			{#if affaire.designation.length > 0}
 				<p>{ affaire.designation }</p>
 			{/if}
-			{#if affaire.categories.length > 0}
+			{#if affaire.categories !== null}
 				<p>{ (affaire.categories.length > 1) ? 'Catégories d’expertise : ':'Catégorie d’expertise : ' + affaire.categories.join(' ; ') + '.' }</p>
 			{/if}
 			{#if affaire.framework.length > 0}
@@ -241,66 +249,76 @@
 			{#if affaire.origination.length > 0}
 				<p>{ `Origine de l’expertise : ${affaire.origination}` }</p>
 			{/if}
-			{#if affaire.sentences.length > 0}
+			{#if affaire.sentences !== null}
 				<p>{ `Intervention d’une institution : ${getSentences(affaire.sentences)}` }</p>
 			{/if}
 			{#if affaire.case.length > 0}
 				<p>{ `Cause de l’expertise : ${affaire.case}` }</p>
 			{/if}
-			{#if affaire.objects.length > 0}
+			{#if affaire.objects !== null}
 				<p>{ (affaire.objects.length > 1) ? 'Objets de l’expertise : ':'Objet de l’expertise : '}{ `${affaire.objects.join(' ; ')}.` }</p>
 			{/if}
 		</div>
 		<!--Participants-->
 		<div>
 			<h3>Participants</h3>
-			<div>
-				<h4>{(affaire.experts.length > 1) ? 'Experts':'Expert'}</h4>
-				<UnorderedList>
-					{#each affaire.experts as expert}
-						<ListItem><Link href="{'/biographies/' + expert.id}">{expert.name}</Link>{', ' + getExpertQuality(expert.title, expert.context, expert.appointment)}</ListItem>
-					{/each}
-				</UnorderedList>
-			</div>
-			<div>
-				<h4>{(affaire.clerks.length > 1) ? 'Greffiers':'Greffier'}</h4>
-				<UnorderedList>
-					{#each affaire.clerks as clerk}
-						<ListItem>{clerk}</ListItem>
-					{/each}
-				</UnorderedList>
-			</div>
-			{#each affaire.parties as party}
+			{#if affaire.experts !== null}
 				<div>
-					<h4>{getPartyLabel(party.role, party.status)}</h4>
-					{#if party.presence.length !== 0 || party.intervention.length !== 0}
-						<p>{getPartyParticipation(party.presence, party.intervention)}</p>
-					{/if}
+					<h4>{(affaire.experts.length > 1) ? 'Experts':'Expert'}</h4>
 					<UnorderedList>
-						{#each party.persons as person}
-							<ListItem>{getPerson(person)}</ListItem>
+						{#each affaire.experts as expert}
+							<ListItem><Link href="{'/biographies/' + expert.id}">{expert.name}</Link>{', ' + getExpertQuality(expert.title, expert.context, expert.appointment)}</ListItem>
 						{/each}
 					</UnorderedList>
-					<p>Expert : <Link href="{'/biographies/' + party.expert.id}">{party.expert.name}</Link></p>
-					{#if party.representatives.length !== 0}
-						<p>{(party.representatives.length > 1) ? 'Représentants':'Représentant'}</p>
-						<UnorderedList>
-							{#each party.representatives as representative}
-								<ListItem>{getPerson(representative)}</ListItem>
-							{/each}
-						</UnorderedList>
-					{/if}
-					{#if party.prosecutors.length !== 0}
-						<p>{(party.prosecutors.length > 1) ? 'Procureurs':'Procureur'}</p>
-						<UnorderedList>
-							{#each party.prosecutors as prosecutor}
-								<ListItem>{prosecutor}</ListItem>
-							{/each}
-						</UnorderedList>
-					{/if}
 				</div>
-			{/each}
-			{#if affaire.craftmen.length !== 0}
+			{/if}
+			{#if affaire.clerks !== null}
+				<div>
+					<h4>{(affaire.clerks.length > 1) ? 'Greffiers':'Greffier'}</h4>
+					<UnorderedList>
+						{#each affaire.clerks as clerk}
+							<ListItem>{clerk}</ListItem>
+						{/each}
+					</UnorderedList>
+				</div>
+			{/if}
+			{#if affaire.parties !== null}
+				{#each affaire.parties as party}
+					<div>
+						<h4>{getPartyLabel(party.role, party.status)}</h4>
+						{#if party.presence.length !== 0 || party.intervention.length !== 0}
+							<p>{getPartyParticipation(party.presence, party.intervention)}</p>
+						{/if}
+						{#if party.person !== null}
+							<UnorderedList>
+								{#each party.persons as person}
+									<ListItem>{getPerson(person)}</ListItem>
+								{/each}
+							</UnorderedList>
+						{/if}
+						{#if party.expert !== null}
+							<p>Expert : <Link href="{'/biographies/' + party.expert.id}">{party.expert.name}</Link></p>
+						{/if}
+						{#if party.representatives !== null}
+							<p>{(party.representatives.length > 1) ? 'Représentants':'Représentant'}</p>
+							<UnorderedList>
+								{#each party.representatives as representative}
+									<ListItem>{getPerson(representative)}</ListItem>
+								{/each}
+							</UnorderedList>
+						{/if}
+						{#if party.prosecutors !== null}
+							<p>{(party.prosecutors.length > 1) ? 'Procureurs':'Procureur'}</p>
+							<UnorderedList>
+								{#each party.prosecutors as prosecutor}
+									<ListItem>{prosecutor}</ListItem>
+								{/each}
+							</UnorderedList>
+						{/if}
+					</div>
+				{/each}
+			{/if}
+			{#if affaire.craftmen !== null}
 				<div>
 					<h4>Entrepreneurs, architectes ou maîtres d’œuvre</h4>
 					<UnorderedList>
@@ -314,8 +332,10 @@
 		<!--Conclusions-->
 		<div>
 			<h3>Conclusions</h3>
-			<p>{ `Dispositif de l’expertise : ${affaire.agreement}` }</p>
-			{#if affaire.opinions.length > 0}
+			{#if affaire.agreement.length > 0}
+				<p>{ `Dispositif de l’expertise : ${affaire.agreement}` }</p>
+			{/if}
+			{#if affaire.opinions !== null}
 				{#each affaire.opinions as opinion}
 					<p>{ getOpinion(opinion) }</p>
 				{/each}
@@ -326,7 +346,7 @@
 			{#if affaire.estimate.length > 0}
 				<p>{ `Montant global (pour les estimations) : ${affaire.estimate}` }</p>
 			{/if}
-			{#if affaire.estimates.length > 0}
+			{#if affaire.estimates !== null}
 				<ul>
 					{#each affaire.estimates as place}
 						<lh>{ `Estimation pour ${place.placeName}` }</lh>
@@ -336,7 +356,7 @@
 					{/each}
 				</ul>
 			{/if}
-			{#if affaire.fees.length > 0}
+			{#if affaire.fees !== null}
 				{#each affaire.fees as fee}
 					<p>{ fee }</p>
 				{/each}
