@@ -9,8 +9,8 @@
 
 
     export async function load({ params, fetch, session, stuff }) {
-        //const url = `http://localhost:8984/xpr/biographies/${params.biographie}/json`;
-        const url = `https://experts.huma-num.fr/xpr/biographies/${params.biographie}/json`;
+        const url = `http://localhost:8984/xpr/biographies/${params.biographie}/json`;
+        //const url = `https://experts.huma-num.fr/xpr/biographies/${params.biographie}/json`;
         const response = await fetch(url);
         if(response.ok) {
             return {
@@ -34,8 +34,10 @@
     $: biographie = data.content
 
     function getDates(dates) {
+        if(dates == null) {return ''} ;
         if(dates.constructor === Array) { return getDatesFromArray(dates) ; } ;
         if(dates.constructor === Object) { return getDatesFromObject(dates) ; } ;
+
     }
 
     function getDatesFromObject(dates) {
@@ -104,11 +106,12 @@
   <div>
     <h2>{`${biographie.id} | ${biographie.authorizedForm}`}</h2>
     <p>{getDates(biographie.existDates)}</p>
+    <!--@todo alternative form-->
     <!--sexe-->
     {#if biographie.sex.length > 0}
       <p>{ `Sexe : ${(biographie.sex == 'male') ? 'homme':'femme'}` }</p>
     {/if}
-    {#if biographie.places.length > 0}
+    {#if biographie.places != null}
       <div>
         <h3>Adresses</h3>
         {#each biographie.places as place}
@@ -117,10 +120,10 @@
             {#if place.placeEntry.length > 0}
               <p>{ place.placeEntry }</p>
             {/if}
-            {#if place.dates.length > 0}
+            {#if place.dates !== null}
               {#each place.dates as date}
                 <p>{`${getDates(date)}`}</p>
-                {#if date.sources.length > 0}
+                {#if date.sources !== null}
                   <ul>
                     <lh>{ (date.sources.length > 1) ? 'Sources :':'Source :' }</lh>
                     {#each date.sources as source}
@@ -145,7 +148,7 @@
       <h3></h3>
     </div>
     <!--function-->
-    {#if biographie.functions.length > 0}
+    {#if biographie.functions !== null}
       <div>
         <h3>Fonctions</h3>
         {#each biographie.functions as funct}
@@ -154,7 +157,7 @@
       </div>
     {/if}
     <!--occupation-->
-    {#if biographie.occupations.length > 0}
+    {#if biographie.occupations !== null}
       <div>
         <h3>Profession</h3>
         {#each biographie.occupations as occupation}
@@ -163,7 +166,7 @@
       </div>
     {/if}
     <!--event-->
-    {#if biographie.events.length > 0}
+    {#if biographie.events !== null}
       <div>
         <h3>Informations biographiques</h3>
         {#each biographie.events as event}
@@ -177,7 +180,7 @@
                 <p>{ `Date : ${getDates(date)}` }</p>
               {/each}
             {/if}
-            {#if event.participants.length > 0}
+            {#if event.participants !== null}
               <ul>
                 <lh>{ (event.participants.length > 1) ? 'Participants : ':'Participant : ' }</lh>
                 {#each event.participants as participant}
@@ -185,7 +188,7 @@
                 {/each}
               </ul>
             {/if}
-            {#if event.involves.length > 0}
+            {#if event.involves !== null}
               <ul>
                 <lh>{ (event.involves.length > 1) ? 'Entités mentionnées : ':'Entité mentionnée : ' }</lh>
                 {#each event.involves as involve}
@@ -193,7 +196,7 @@
                 {/each}
               </ul>
             {/if}
-            {#if event.sources.length > 0}
+            {#if event.sources !== null}
               <ul>
                 <lh>{ (event.sources.length > 1) ? 'Sources : ':'Source : ' }</lh>
                 {#each event.sources as source}
@@ -206,7 +209,7 @@
       </div>
     {/if}
     <!--Expertises-->
-    {#if biographie.expertises.length > 0}
+    {#if biographie.expertises !== null}
       <div>
         <h3>Expertises</h3>
         <UnorderedList>
