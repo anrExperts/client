@@ -5,6 +5,7 @@
         ListItem
     } from 'carbon-components-svelte' ;
     import { Launch16 } from 'carbon-icons-svelte' ;
+	import { get_root_for_style } from 'svelte/internal';
     /** @type {import('@sveltejs/kit').Load} */
 
 
@@ -103,7 +104,7 @@
 
 <div>
   <h1>Prosopographie</h1>
-  <div>
+  <article>
     <h2>{`${biographie.id} | ${biographie.authorizedForm}`}</h2>
     <p>{getDates(biographie.existDates)}</p>
     <!--@todo alternative form-->
@@ -112,7 +113,7 @@
       <p>{ `Sexe : ${(biographie.sex == 'male') ? 'homme':'femme'}` }</p>
     {/if}
     {#if biographie.places != null}
-      <div>
+      <section>
         <h3>Adresses</h3>
         {#each biographie.places as place}
           <div>
@@ -141,60 +142,44 @@
             {/if}
           </div>
         {/each}
-      </div>
+        </section>
     {/if}
     <!--forms of the name-->
-    <div>
+    <section>
       <h3></h3>
-    </div>
+    </section>
     <!--function-->
     {#if biographie.functions !== null}
-      <div>
+      <section>
         <h3>Fonctions</h3>
         {#each biographie.functions as funct}
           <p>{`${funct.function} ${getDates(funct.dates)}`}</p>
         {/each}
-      </div>
+      </section>
     {/if}
     <!--occupation-->
     {#if biographie.occupations !== null}
-      <div>
+      <section>
         <h3>Profession</h3>
         {#each biographie.occupations as occupation}
           <p>{`${occupation.occupation} ${getDates(occupation.dates)}`}</p>
         {/each}
-      </div>
+      </section>
     {/if}
     <!--event-->
     {#if biographie.events !== null}
-      <div>
+      <section>
         <h3>Informations biographiques</h3>
         {#each biographie.events as event}
-          <div>
+          <section>
             <h4>{ event.event }</h4>
-            {#if event.place.length > 0}
+            {#if event.place != null}
               <p>{ `Lieu : ${event.place}` }</p>
             {/if}
-            {#if event.dates.length > 0 }
+            {#if event.dates != null }
               {#each event.dates as date}
                 <p>{ `Date : ${getDates(date)}` }</p>
               {/each}
-            {/if}
-            {#if event.participants !== null}
-              <ul>
-                <lh>{ (event.participants.length > 1) ? 'Participants : ':'Participant : ' }</lh>
-                {#each event.participants as participant}
-                  <li><a href="{ '/biographies/' + participant.id }">{ participant.name }</a></li>
-                {/each}
-              </ul>
-            {/if}
-            {#if event.involves !== null}
-              <ul>
-                <lh>{ (event.involves.length > 1) ? 'Entités mentionnées : ':'Entité mentionnée : ' }</lh>
-                {#each event.involves as involve}
-                  <li><a href="{ '/biographies/' + involve.id }">{ involve.name }</a></li>
-                {/each}
-              </ul>
             {/if}
             {#if event.sources !== null}
               <ul>
@@ -204,20 +189,47 @@
                 {/each}
               </ul>
             {/if}
-          </div>
+            </section>
         {/each}
-      </div>
+      </section>
+    {/if}
+    {#if biographie.relations !== null}
+      <section>
+        <h3>Relations</h3>
+        {#each biographie.relations as relation}
+          <section>
+            <h4>{relation.relation}</h4>
+            {#if relation.roles !== null}
+            <ul>
+              <lh>{ (relation.roles.length > 1) ? 'Rôles :':'Rôle :' }</lh>
+              {#each relation.roles as role}
+                <li>
+                  {role.role}
+                  {#if role.sources !== null}
+                    <ul>
+                      {#each role.sources as source}
+                        <li><a href="{ '/sources/' + source.id }">{source.source}</a></li>
+                      {/each}
+                    </ul>
+                  {/if}
+                </li>
+              {/each}
+            </ul>
+            {/if}
+          </section>
+        {/each}
+      </section>
     {/if}
     <!--Expertises-->
     {#if biographie.expertises !== null}
-      <div>
+      <section>
         <h3>Expertises</h3>
         <UnorderedList>
           {#each biographie.expertises as expertise}
             <ListItem><Link href={'/expertises/' + expertise.id}>{expertise.id}</Link> {getDates(expertise.dates)}</ListItem>
           {/each}
         </UnorderedList>
-      </div>
+      </section>
     {/if}
-  </div>
+    </article>
 </div>

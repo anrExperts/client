@@ -37,8 +37,8 @@
     $: console.log(selectedQualities)
 
     const fetchBiographies = async (meta) => {
-        //const url = 'http://localhost:8984/xpr/biographies/json' ;
-        const url = `https://experts.huma-num.fr/xpr/biographies/json`;
+        const url = 'http://localhost:8984/xpr/biographies/json' ;
+        //const url = `https://experts.huma-num.fr/xpr/biographies/json`;
         const response = await fetch(url, {
             method: 'POST',
             headers: {'Content-Type': 'text/plain'},
