@@ -31,6 +31,15 @@
 	const meta = data.meta
 	const affaire = data.content
 
+	function getManifest() {
+		return `http://localhost:8984/xpr/files/manifest/${meta.cote}.manifest.json`
+	}
+	
+	function getStartCanvas() {
+		let start = meta.facsimile.start
+		return `https://xpr/iiif/${meta.cote}/canvas/p${start}`
+	}
+
 	let expertiseLabel = getExpertiseLabel(meta.cote, meta.dossier, meta.supplement, affaire.dates) ;
 
 	function getExpertiseLabel(cote, dossier, supplement, dates){
@@ -393,10 +402,10 @@
 </div>
 <div class="canvas-container">
 	<sequence-panel
-					id='sequence'
-					manifest-id='http://localhost:8984/xpr/iiif/Z1J/manifest.json'
-					start-canvas="https://xpr/iiif/Z1J/canvas/p0002"
-					margin='30'>
+		id='sequence'
+		manifest-id="{getManifest()}"
+		start-canvas="{getStartCanvas()}"
+		margin='30'>
 	</sequence-panel>
 	<button id='prev'>prev</button>
 	<button id='next'>next</button>
