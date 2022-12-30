@@ -215,6 +215,10 @@
 
 </script>
 
+<svelte:head>
+	<script src="https://cdn.jsdelivr.net/npm/@digirati/canvas-panel-web-components@latest"></script>
+</svelte:head>
+
 <div>
 	<h1>Expertise</h1>
 	<div>
@@ -387,3 +391,52 @@
 		{/if}
 	</div>
 </div>
+<div class="canvas-container">
+	<sequence-panel
+					id='sequence'
+					manifest-id='http://localhost:8984/xpr/iiif/Z1J/manifest.json'
+					start-canvas="https://xpr/iiif/Z1J/canvas/p0002"
+					margin='30'>
+	</sequence-panel>
+	<button id='prev'>prev</button>
+	<button id='next'>next</button>
+</div>
+
+
+<style id="cp-test-page">
+	.canvas-container {
+		min-height: 100%;
+		width: 70%;
+	}
+</style>
+<svelt:body>
+	<script>
+		const seq = document.getElementById("sequence");
+		const next = document.getElementById("next");
+		const prev = document.getElementById("prev");
+
+		seq.addEventListener("sequence", () => {
+			console.log("sequence", seq.sequence);
+		});
+
+		next.addEventListener("click", () => {
+			seq.sequence.nextCanvas();
+		});
+		prev.addEventListener("click", () => {
+			seq.sequence.previousCanvas();
+		});
+
+		seq.addEventListener("sequence-change", (e) => {
+			if (e.detail.index === 0) {
+				prev.setAttribute("disabled", "true");
+			} else {
+				prev.removeAttribute("disabled");
+			}
+			if (e.detail.total - 1 <= e.detail.index) {
+				next.setAttribute("disabled", "true");
+			} else {
+				next.removeAttribute("disabled");
+			}
+		});
+	</script>
+</svelt:body>
