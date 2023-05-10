@@ -1,22 +1,26 @@
-# create-svelte
+# Client web pour l’application XPR
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+Ceci est un client web réalisé avec [SvelteKit](https://kit.svelte.dev) pour l’ANR Expert. 
 
-## Creating a project
+**Pratiques des savoirs entre jugement et innovation. Experts, expertises du bâtiment, Paris 1690-1790 – ANR EXPERTS**
 
-If you're seeing this, you've probably already done this step. Congrats!
+Notre projet vise à examiner, à partir d’un secteur économique majeur — celui du bâtiment à l’époque moderne —, le mécanisme de l’expertise : comment la langue technique régulatrice des experts s’impose à la société, comment leur compétence se convertit en autorité, voire parfois en « abus d’autorité » ? L’existence d’un fonds d’archives exceptionnel (AN Z1J) qui conserve l’ensemble des procès-verbaux d’expertise du bâtiment parisien de 1643 à 1792 nous permet de lancer une enquête pluridisciplinaire d’envergure sur la question de l’expertise qui connaît, à partir de 1690, un tournant particulier. En effet, les experts, autrefois uniquement gens de métiers, se divisent en deux branches exerçant deux activités concurrentes, parfois complémentaires : l’architecture et l’entreprise de construction.
+
+https://anr.fr/Projet-ANR-17-CE26-0006
+
+## Installation
+
+### Cloner le répertoire et installer les dépendances
 
 ```bash
-# create a new project in the current directory
-npm init svelte@next
+# clone repository
+git clone https://github.com/anrExperts/xpr-client.git
 
-# create a new project in my-app
-npm init svelte@next my-app
+# install dependancies
+npm install
 ```
 
-> Note: the `@next` is temporary
-
-## Developing
+### Developing
 
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
@@ -27,7 +31,7 @@ npm run dev
 npm run dev -- --open
 ```
 
-## Building
+### Building
 
 To create a production version of your app:
 
